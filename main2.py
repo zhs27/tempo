@@ -285,11 +285,11 @@ def train_model(modelQ,modelQh, train_loader,val_loader,cfg, upfreq = 5):
         
         for name,val in summary.items():
             tensorboard.add_scalar(name,val,e)
-        '''
-        #Update model Qh in every N batches# 
+        
+        #Update model Qh in every N epochs# 
         if e % upfreq == 0 and modelQh != None:
             modelQh.load_state_dict(modelQ.state_dict())
-        '''  
+          
     
     summary_saved={**summary,
                 'model_state':modelQh.module.state_dict(),
