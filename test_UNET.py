@@ -2,7 +2,6 @@ import torch
 from tqdm import tqdm
 import argparse
 import numpy as np
-from model.U_NET import UNet
 from torchvision.utils import save_image
 
 # from Dataloader.model_net_cross_val import get_sets
