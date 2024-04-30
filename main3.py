@@ -3,6 +3,7 @@ from tqdm import tqdm
 import argparse
 import numpy as np
 
+from .model.U_NET import UNet
 
 # from Dataloader.model_net_cross_val import get_sets
 # from Dataloader.scanobjectnn_cross_val import get_sets

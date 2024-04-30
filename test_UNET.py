@@ -13,6 +13,7 @@ import torch.nn as nn
 
 # ======== load model =========
 from model.network import fs_network
+from model.U_NET import UNet
 
 
 import os
@@ -214,6 +215,7 @@ def main(cfg):
 def train_model(model,train_loader,val_loader,cfg):
     device=torch.device(cfg.device)
     model=model.to(device)
+    model = UNet(n_channels=3, n_classes=args.classes, bilinear=args.bilinear)
     
     #====== loss and optimizer =======
     loss_func=nn.CrossEntropyLoss()
@@ -331,6 +333,8 @@ def run_one_epoch(model,bar,mode,loss_func,optimizer=None,show_interval=10):
     else:
         model.eval()
     
+    s = UNet()
+    
     for i, (x_cpu,y_cpu) in enumerate(bar):
         x,y=x_cpu.to(device),y_cpu.to(device)
         
@@ -350,6 +354,8 @@ def run_one_epoch(model,bar,mode,loss_func,optimizer=None,show_interval=10):
                 x = get_img(x)
                 x=x.unsqueeze(2)
                 pred,loss=model(x)
+
+                
         
         
         summary['loss']+=[loss.item()]
