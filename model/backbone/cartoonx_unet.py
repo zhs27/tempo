@@ -52,7 +52,7 @@ class CartoonX:
         self.inverse_dwt = DWTInverse(mode=dwt_params['mode'], wave=dwt_params['wave']).to(device)
         self.get_perturbation = None # this method will be assigned in compute_obfuscation_strategy
 
-    def __call__(self, x, target):
+    def __call__(self, x, target, unet):
         """
         args:
             x: torch.Tensor of shape (bs,c,h,w)
@@ -179,6 +179,7 @@ class CartoonX:
                     )
                 )
             cartoonx.append(cartoonx_per_rgb.clamp(0,1))
+        
         
         '''
         cartoonx_per_rgb = [

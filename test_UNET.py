@@ -215,7 +215,7 @@ def main(cfg):
 def train_model(model,train_loader,val_loader,cfg):
     device=torch.device(cfg.device)
     model=model.to(device)
-    model = UNet(n_channels=3, n_classes=args.classes, bilinear=args.bilinear)
+    model = UNet(n_channels=1, n_classes=4)
     
     #====== loss and optimizer =======
     loss_func=nn.CrossEntropyLoss()
