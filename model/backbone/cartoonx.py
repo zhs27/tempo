@@ -65,6 +65,7 @@ class CartoonX:
         # Initialize optimization loss tracking
         l1wavelet_loss = []
         distortion_loss = []
+        print(x.size())
 
         
         #apply dwt on all images
