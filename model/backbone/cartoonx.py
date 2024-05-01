@@ -150,7 +150,7 @@ class CartoonX:
                 for n in m: 
                     l1waveletcoefs += n.abs().sum()
             print(m_yl[0].size())
-            print(m_yh[0][0])
+            print(m_yh[0][0].size())
             l1waveletcoefs /= num_mask
             
             # Log losses
