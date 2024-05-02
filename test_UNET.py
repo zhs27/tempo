@@ -184,7 +184,7 @@ def main(cfg):
     s = UNet(n_channels=1, n_classes=1)
     s = s.to(cfg.device)
     unetopt = optim.RMSprop(s.parameters(),
-                              lr=1e-5, weight_decay=1e-8, momentum=0.999, foreach=True)
+                              lr=1e-1, weight_decay=1e-8, momentum=0.999, foreach=True)
     criterion = nn.CrossEntropyLoss()
     s.train()
     
@@ -200,7 +200,7 @@ def main(cfg):
 
        
         for m,n in zip(x, cartoonx):
-            for k in range(30):
+            for k in range(2):
                 maskpred = s(m)
                 unetopt.zero_grad(set_to_none=True)
                 unetloss = criterion(maskpred,n)
@@ -210,7 +210,7 @@ def main(cfg):
         cartoonx = torch.stack(cartoonx)
         s.eval()
         for m,n in zip(x, cartoonx):
-            unetpred = s(m)
+            unetpred = torch.sigmoid(s(m))
             for j in range(6):
                 picname1 = str(j) + '.png'
                 picname2 = 'cartoonx' + str(j) + '.png'
