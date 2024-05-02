@@ -199,7 +199,6 @@ def main(cfg):
         cartoonx = cartoonx_method(x,torch.argmax(pred, dim = 1).detach())
         for m,n in zip(x, cartoonx):
 
-            print(m.size())
             maskpred = s(m)
             unetloss = criterion(maskpred,n.float())
             unetloss.backward()
