@@ -209,8 +209,7 @@ def main(cfg):
         print(cartoonx.size())
         for m,n in zip(x, cartoonx):
             unetpred = s(m)
-            print(unetpred.size(), n.size())
-            #print(torch.eq(unetpred, n))
+            print(torch.eq(unetpred, n))
 
         for j in range(6):
             picname1 = str(j) + '.png'
