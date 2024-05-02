@@ -65,7 +65,7 @@ class CartoonX:
         # Initialize optimization loss tracking
         l1wavelet_loss = []
         distortion_loss = []
-        print(x.size())
+
 
         
         #apply dwt on all images
@@ -150,8 +150,7 @@ class CartoonX:
             for m in m_yh:
                 for n in m: 
                     l1waveletcoefs += n.abs().sum()
-            print(m_yl[0].size())
-            print(m_yh[0][0].size())
+
             l1waveletcoefs /= num_mask
             
             # Log losses
@@ -183,7 +182,7 @@ class CartoonX:
                 )
             cartoonx.append(cartoonx_per_rgb.clamp(0,1))
         
-        print(cartoonx[0].size())
+        
         '''
         cartoonx_per_rgb = [
                 self.inverse_dwt(

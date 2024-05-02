@@ -180,6 +180,9 @@ class CartoonX:
                 )
             cartoonx.append(cartoonx_per_rgb.clamp(0,1))
         
+        for m in cartoonx:
+            for n in m:
+                unet(n)
         
         '''
         cartoonx_per_rgb = [
