@@ -210,7 +210,7 @@ def main(cfg):
         cartoonx = torch.stack(cartoonx)
         s.eval()
         for m,n in zip(x, cartoonx):
-            unetpred = torch.sigmoid(s(m))
+            unetpred = s(m)
             print(unetpred)
             print(n)
 
