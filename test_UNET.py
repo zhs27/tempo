@@ -182,6 +182,7 @@ def main(cfg):
     bar=tqdm(val_loader,ncols=100,unit='batch',leave=False)
 
     s = UNet(n_channels=1, n_classes=1)
+    s = s.to(cfg.device)
     unetopt = optim.RMSprop(s.parameters(),
                               lr=1e-5, weight_decay=1e-8, momentum=0.999, foreach=True)
     criterion = nn.BCEWithLogitsLoss()
