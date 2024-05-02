@@ -185,7 +185,7 @@ def main(cfg):
     s = s.to(cfg.device)
     unetopt = optim.RMSprop(s.parameters(),
                               lr=1e-5, weight_decay=1e-8, momentum=0.999, foreach=True)
-    criterion = nn.BCEWithLogitsLoss()
+    criterion = nn.CrossEntropyLoss()
     s.train()
     
 
@@ -200,6 +200,7 @@ def main(cfg):
         for m,n in zip(x, cartoonx):
 
             maskpred = s(m)
+            unetopt.zero_grad(set_to_none=True)
             unetloss = criterion(maskpred,n.float())
             unetloss.backward()
             unetopt.step()
