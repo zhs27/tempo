@@ -179,6 +179,12 @@ def main(cfg):
 
     cartoonx_method = CartoonX(model=model, device=cfg.device, **CARTOONX_HPARAMS)
     bar=tqdm(val_loader,ncols=100,unit='batch',leave=False)
+
+    s = UNet(n_channels=1, n_classes=1)
+    unetopt = optim.RMSprop(s.parameters(),
+                              lr=1e-5, weight_decay=1e-8, momentum=0.999, foreach=True)
+    criterion = nn.BCEWithLogitsLoss()
+    s.train()
     
 
     for i, (x_cpu,y_cpu) in enumerate(bar):
@@ -189,6 +195,12 @@ def main(cfg):
             x=x.unsqueeze(2)
             pred,loss=model(x)
         cartoonx = cartoonx_method(x,torch.argmax(pred, dim = 1).detach())
+        for m,n in zip(x, cartoonx):
+            maskpred = s(m)
+            print(maskpred.size())
+            unetloss = criterion(maskpred.squeeze(1),n.float())
+            unetloss.backward()
+            unetopt.step()
         
         cartoonx = torch.stack(cartoonx)
         print(cartoonx.size())
@@ -216,7 +228,6 @@ def main(cfg):
 def train_model(model,train_loader,val_loader,cfg):
     device=torch.device(cfg.device)
     model=model.to(device)
-    model = UNet(n_channels=1, n_classes=4)
     
     #====== loss and optimizer =======
     loss_func=nn.CrossEntropyLoss()
@@ -334,7 +345,7 @@ def run_one_epoch(model,bar,mode,loss_func,optimizer=None,show_interval=10):
     else:
         model.eval()
     
-    s = UNet()
+
     
     for i, (x_cpu,y_cpu) in enumerate(bar):
         x,y=x_cpu.to(device),y_cpu.to(device)
