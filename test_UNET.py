@@ -10,6 +10,7 @@ from torchvision.utils import save_image
 from util.get_acc import cal_cfm
 from util.pcview import PCViews
 import torch.nn as nn
+from torch import optim
 
 # ======== load model =========
 from model.network import fs_network
