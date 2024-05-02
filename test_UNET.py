@@ -202,7 +202,7 @@ def main(cfg):
             print(m.size())
             maskpred = s(m)
             print(maskpred.size())
-            unetloss = criterion(maskpred.squeeze(1),n.float())
+            unetloss = criterion(maskpred,n.float())
             unetloss.backward()
             unetopt.step()
         
