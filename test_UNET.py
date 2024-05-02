@@ -208,8 +208,7 @@ def main(cfg):
         print(cartoonx.size())
         for m,n in zip(x, cartoonx):
             unetpred = s(m)
-            if(unetpred == n):
-                print(1)
+            print(unetpred)
         for j in range(6):
             picname1 = str(j) + '.png'
             picname2 = 'cartoonx' + str(j) + '.png'
