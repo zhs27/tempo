@@ -201,7 +201,7 @@ def main(cfg):
 
             maskpred = s(m)
             unetopt.zero_grad(set_to_none=True)
-            unetloss = criterion(maskpred,n.float())
+            unetloss = criterion(maskpred,n)
             unetloss.backward()
             unetopt.step()
         
@@ -209,7 +209,8 @@ def main(cfg):
         print(cartoonx.size())
         for m,n in zip(x, cartoonx):
             unetpred = s(m)
-            print(torch.eq(unetpred, n))
+            print(unetpred)
+            print(n)
 
         for j in range(6):
             picname1 = str(j) + '.png'
