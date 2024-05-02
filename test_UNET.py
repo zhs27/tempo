@@ -200,7 +200,7 @@ def main(cfg):
 
        
         for m,n in zip(x, cartoonx):
-            for i in range(20):
+            for k in range(30):
                 maskpred = s(m)
                 unetopt.zero_grad(set_to_none=True)
                 unetloss = criterion(maskpred,n)
@@ -211,15 +211,16 @@ def main(cfg):
         s.eval()
         for m,n in zip(x, cartoonx):
             unetpred = s(m)
-            print(unetpred)
-            print(n)
+            for j in range(6):
+                picname1 = str(j) + '.png'
+                picname2 = 'cartoonx' + str(j) + '.png'
+                picname3 = 'unet' + str(j) + '.png'
+                save_image(m[j],picname1)
+                save_image(n[j],picname2)
+                save_image(unetpred[j],picname3)
+            
 
-        for j in range(6):
-            picname1 = str(j) + '.png'
-            picname2 = 'cartoonx' + str(j) + '.png'
-            save_image(x[0,j],picname1)
-            save_image(cartoonx[0,j],picname2)
-            quit
+
 
 
         #cartoonx, history_cartoonx = cartoonx_method(x, pred)
