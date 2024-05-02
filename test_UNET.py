@@ -200,12 +200,12 @@ def main(cfg):
 
        
         for m,n in zip(x, cartoonx):
-
-            maskpred = s(m)
-            unetopt.zero_grad(set_to_none=True)
-            unetloss = criterion(maskpred,n)
-            unetloss.backward()
-            unetopt.step()
+            for i in range(20):
+                maskpred = s(m)
+                unetopt.zero_grad(set_to_none=True)
+                unetloss = criterion(maskpred,n)
+                unetloss.backward()
+                unetopt.step()
         
         cartoonx = torch.stack(cartoonx)
         s.eval()
