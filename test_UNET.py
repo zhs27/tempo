@@ -197,6 +197,8 @@ def main(cfg):
             x=x.unsqueeze(2)
             pred,loss=model(x)
         cartoonx = cartoonx_method(x,torch.argmax(pred, dim = 1).detach())
+
+        s.eval()
         for m,n in zip(x, cartoonx):
 
             maskpred = s(m)
