@@ -209,7 +209,7 @@ def main(cfg):
         print(cartoonx.size())
         for m,n in zip(x, cartoonx):
             unetpred = s(m)
-            if(s(m) == n):
+            if(unetpred == n):
                 print(1)
         for j in range(6):
             picname1 = str(j) + '.png'
