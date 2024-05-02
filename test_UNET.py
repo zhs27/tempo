@@ -201,13 +201,16 @@ def main(cfg):
 
             print(m.size())
             maskpred = s(m)
-            print(maskpred.size())
             unetloss = criterion(maskpred,n.float())
             unetloss.backward()
             unetopt.step()
         
         cartoonx = torch.stack(cartoonx)
         print(cartoonx.size())
+        for m,n in zip(x, cartoonx):
+            unetpred = s(m)
+            if(s(m) == n):
+                print(1)
         for j in range(6):
             picname1 = str(j) + '.png'
             picname2 = 'cartoonx' + str(j) + '.png'
