@@ -198,7 +198,7 @@ def main(cfg):
             pred,loss=model(x)
         cartoonx = cartoonx_method(x,torch.argmax(pred, dim = 1).detach())
 
-        s.eval()
+       
         for m,n in zip(x, cartoonx):
 
             maskpred = s(m)
@@ -208,7 +208,7 @@ def main(cfg):
             unetopt.step()
         
         cartoonx = torch.stack(cartoonx)
-        print(cartoonx.size())
+        s.eval()
         for m,n in zip(x, cartoonx):
             unetpred = torch.sigmoid(s(m))
             print(unetpred)
