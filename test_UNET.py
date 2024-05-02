@@ -182,7 +182,7 @@ def main(cfg):
     bar=tqdm(val_loader,ncols=100,unit='batch',leave=False)
 
     s = UNet(n_channels=1, n_classes=1)
-    s = s.to(cfg.device)
+    s = s.to()
     unetopt = optim.RMSprop(s.parameters(),
                               lr=1e-5, weight_decay=1e-8, momentum=0.999, foreach=True)
     criterion = nn.BCEWithLogitsLoss()
@@ -198,13 +198,13 @@ def main(cfg):
             pred,loss=model(x)
         cartoonx = cartoonx_method(x,torch.argmax(pred, dim = 1).detach())
         for m,n in zip(x, cartoonx):
-            for p,q in zip(m,n):
-                print(p.size())
-                maskpred = s(p)
-                print(maskpred.size())
-                unetloss = criterion(maskpred.squeeze(1),q.float())
-                unetloss.backward()
-                unetopt.step()
+
+            print(m.size())
+            maskpred = s(m)
+            print(maskpred.size())
+            unetloss = criterion(maskpred.squeeze(1),n.float())
+            unetloss.backward()
+            unetopt.step()
         
         cartoonx = torch.stack(cartoonx)
         print(cartoonx.size())
