@@ -188,7 +188,7 @@ class ViewNetpt(nn.Module):
 
 
 
-    def forward(self,inpt, modelQh = None):
+    def forward(self,inpt, xtocartoonx= None, modelQh = None):
         '''
         norm_img shape is (20,6,128,128)
         20 is the batch_size
@@ -197,16 +197,20 @@ class ViewNetpt(nn.Module):
         '''
         CARTOONX_HPARAMS = {
         "l1lambda": 0.01, "lr": 1e-1, 'obfuscation': 'gaussian',
-        "maximize_label": False, "optim_steps": 50,  
+        "maximize_label": False, "optim_steps": 30,  
         "noise_bs": 1, 'mask_init': 'ones'
-        } 
-        if(modelQh != None):
+        }
+        if(xtocartoonx != None and inpt in xtocartoonx):
+            cartoonx =  xtocartoonx[inpt]
+            inpt = cartoonx
+        elif(modelQh != None):
             '''
             get masked img with modelQh and cartoonX
             '''
             cartoonx_method = CartoonX(model=modelQh, device='cuda', **CARTOONX_HPARAMS)
             pred,loss=modelQh(inpt)
             cartoonx = cartoonx_method(inpt,torch.argmax(pred, dim = 1).detach())
+            xtocartoonx.update(inpt = torch.stack(cartoonx))
             inpt = torch.stack(cartoonx)
         
 

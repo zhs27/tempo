@@ -173,16 +173,16 @@ def train_model(modelQ,modelQh, train_loader,val_loader,cfg, upfreq = 5):
         lr_scheduleQh=torch.optim.lr_scheduler.MultiStepLR(optimizerQh,milestones=np.arange(10,cfg.epochs,cfg.decay_ep),gamma=cfg.gamma)
     
 
-    def train_one_epoch(m1, m2, optimizer):
+    def train_one_epoch(m1, m2, optimizer, xtocartoonx):
         bar=tqdm(train_loader,ncols=100,unit='batch',leave=False)
-        epsum=run_one_epoch(m1,m2,bar,'train',loss_func=loss_func,optimizerQ=optimizer)
+        epsum=run_one_epoch(m1,m2,bar,'train',loss_func=loss_func,xtocartoonx = xtocartoonx, optimizerQ=optimizer)
         summary={"loss/train":np.mean(epsum['loss'])}
         return summary
         
         
-    def eval_one_epoch(m1,m2=None):
+    def eval_one_epoch(m1,m2, xtocartoonx):
         bar=tqdm(val_loader,ncols=100,unit='batch',leave=False)
-        epsum=run_one_epoch(m1,m2,bar,"valid",loss_func=loss_func)
+        epsum=run_one_epoch(m1,m2,bar,"valid",loss_func=loss_func,xtocartoonx=xtocartoonx)
         mean_acc=np.mean(epsum['acc'])
         summary={'meac':mean_acc}
         summary["loss/valid"]=np.mean(epsum['loss'])
@@ -217,8 +217,8 @@ def train_model(modelQ,modelQh, train_loader,val_loader,cfg, upfreq = 5):
     preinterval_list = []
     tqdm_pretrain_epochs = tqdm(range(cfg.pretrain_epochs),unit='epoch',ncols=100)
     for e in tqdm_pretrain_epochs:
-        pretrain_summary=train_one_epoch(modelQh,None,optimizerQh)
-        preval_summary,conf_mat,batch_acc_list=eval_one_epoch(modelQh,None)
+        pretrain_summary=train_one_epoch(modelQh,None,optimizerQh, None)
+        preval_summary,conf_mat,batch_acc_list=eval_one_epoch(modelQh,None, None)
         presummary={**pretrain_summary,**preval_summary}
         
         
@@ -252,10 +252,11 @@ def train_model(modelQ,modelQh, train_loader,val_loader,cfg, upfreq = 5):
 
     acc_list=[]
     interval_list=[]
+    xtocartoonx = {} 
 
     for e in tqdm_epochs:
-        train_summary=train_one_epoch(modelQ,modelQh,optimizerQ)
-        val_summary,conf_mat,batch_acc_list=eval_one_epoch(modelQ,modelQh)
+        train_summary=train_one_epoch(modelQ,modelQh,optimizerQ, None)
+        val_summary,conf_mat,batch_acc_list=eval_one_epoch(modelQ,modelQh,xtocartoonx)
         summary={**train_summary,**val_summary}
         
         if cfg.lr_sch:
@@ -320,7 +321,7 @@ def get_img(inpt):
 
 
 
-def run_one_epoch(modelQ,modelQh,bar,mode,loss_func,optimizerQ=None,optimizerQh=None,show_interval=10):
+def run_one_epoch(modelQ,modelQh,bar,mode,loss_func,xtocartoonx, optimizerQ=None,optimizerQh=None,show_interval=10):
     confusion_mat=np.zeros((cfg.k_way,cfg.k_way))
     summary={"acc":[],"loss":[]}
     device=next(modelQ.parameters()).device
@@ -342,7 +343,7 @@ def run_one_epoch(modelQ,modelQh,bar,mode,loss_func,optimizerQ=None,optimizerQh=
             x=x.unsqueeze(2)
             optimizerQ.zero_grad()
             if modelQh != None:
-                pred,loss=modelQ(x, modelQh)
+                pred,loss=modelQ(x, xtocartoonx, modelQh)
             else:
                 pred,loss=modelQ(x)
             loss.backward()
@@ -351,11 +352,19 @@ def run_one_epoch(modelQ,modelQh,bar,mode,loss_func,optimizerQ=None,optimizerQh=
              
 
         else:
-            with torch.no_grad():
+            if i != 0:
+                with torch.no_grad():
+                    x = get_img(x)
+                    x=x.unsqueeze(2)
+                    if modelQh != None:
+                        pred,loss=modelQ(x, xtocartoonx, modelQh)
+                    else:
+                        pred,loss=modelQ(x)
+            else:
                 x = get_img(x)
-                x=x.unsqueeze(2)
+                x = x.unsqueeze(2)
                 if modelQh != None:
-                    pred,loss=modelQ(x, modelQh)
+                    pred,loss=modelQ(x, xtocartoonx, modelQh)
                 else:
                     pred,loss=modelQ(x)
         
