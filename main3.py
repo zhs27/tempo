@@ -3,7 +3,6 @@ from tqdm import tqdm
 import argparse
 import numpy as np
 
-from .model.U_NET import UNet
 
 # from Dataloader.model_net_cross_val import get_sets
 # from Dataloader.scanobjectnn_cross_val import get_sets
@@ -288,10 +287,11 @@ def train_model(modelQ,modelQh, train_loader,val_loader,cfg, upfreq = 5):
         for name,val in summary.items():
             tensorboard.add_scalar(name,val,e)
         
-        #Update model Qh in every N epochs# 
+        #Update model Qh in every N epochs#
+        ''' 
         if e % upfreq == 0 and modelQh != None:
             modelQh.load_state_dict(modelQ.state_dict())
-          
+        ''' 
     
     summary_saved={**summary,
                 'model_state':modelQh.module.state_dict(),
