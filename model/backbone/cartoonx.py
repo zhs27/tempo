@@ -161,7 +161,7 @@ class CartoonX:
             loss = distortion + self.l1lambda * l1waveletcoefs 
             # Perform optimization step
             opt.zero_grad()
-            loss.backward(retain_graph=True)
+            loss.backward()
             opt.step()
 
             # Project masks into [0,1]
