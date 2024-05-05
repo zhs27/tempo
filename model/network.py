@@ -121,13 +121,13 @@ class fs_network(nn.Module):
              
      
     
-    def forward(self,x,model = None):
+    def forward(self,x,model = None,xtocartoonx = None):
         '''
         If backbone is the gait related network
         the embeding shape is (bin,sample_num,feat_dim), like (62,20,256)
         '''
-        if model != None:
-            embeding = self.backbone(x, model)
+        if model != None and xtocartoonx != None:
+            embeding = self.backbone(x, model, xtocartoonx)
         else:
             embeding=self.backbone(x)
 
