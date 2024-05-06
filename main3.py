@@ -179,9 +179,9 @@ def train_model(modelQ,modelQh, train_loader,val_loader,cfg, upfreq = 5):
         return summary
         
         
-    def eval_one_epoch(m1,m2, xtocartoonx):
+    def eval_one_epoch(m1,m2, xtocartoonx, mode = "valid"):
         bar=tqdm(val_loader,ncols=100,unit='batch',leave=False)
-        epsum=run_one_epoch(m1,m2,bar,"valid",loss_func=loss_func,xtocartoonx=xtocartoonx)
+        epsum=run_one_epoch(m1,m2,bar,mode,loss_func=loss_func,xtocartoonx=xtocartoonx)
         mean_acc=np.mean(epsum['acc'])
         summary={'meac':mean_acc}
         summary["loss/valid"]=np.mean(epsum['loss'])
@@ -255,6 +255,8 @@ def train_model(modelQ,modelQh, train_loader,val_loader,cfg, upfreq = 5):
 
     for e in tqdm_epochs:
         train_summary=train_one_epoch(modelQ,modelQh,optimizerQ, None)
+        if e == 0:
+            val_summary,conf_mat,batch_acc_list=eval_one_epoch(modelQ,modelQh,xtocartoonx, mode = "validg")
         val_summary,conf_mat,batch_acc_list=eval_one_epoch(modelQ,modelQh,xtocartoonx)
         summary={**train_summary,**val_summary}
         
@@ -351,16 +353,16 @@ def run_one_epoch(modelQ,modelQh,bar,mode,loss_func,xtocartoonx, optimizerQ=None
 
              
 
-        else:
-            if i != 0:
-                with torch.no_grad():
-                    x = get_img(x)
-                    x=x.unsqueeze(2)
-                    if modelQh != None:
-                        pred,loss=modelQ(x, xtocartoonx, modelQh)
-                    else:
-                        pred,loss=modelQ(x)
-            else:
+        elif mode == 'valid':
+            with torch.no_grad():
+                x = get_img(x)
+                x=x.unsqueeze(2)
+                if modelQh != None:
+                    pred,loss=modelQ(x, xtocartoonx, modelQh)
+                else:
+                    pred,loss=modelQ(x)
+
+        elif mode == 'validg':   
                 x = get_img(x)
                 x = x.unsqueeze(2)
                 if modelQh != None:
