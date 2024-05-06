@@ -52,7 +52,7 @@ class CartoonX:
         self.inverse_dwt = DWTInverse(mode=dwt_params['mode'], wave=dwt_params['wave']).to(device)
         self.get_perturbation = None # this method will be assigned in compute_obfuscation_strategy
 
-    def __call__(self, x, target, unet):
+    def __call__(self, x, target, unet, unetopt, unetcriterion):
         """
         args:
             x: torch.Tensor of shape (bs,c,h,w)
@@ -171,6 +171,7 @@ class CartoonX:
 
         # Invert wavelet coefficient mask back to pixel space as grayscale images
         #cartoonx = self.inverse_dwt((m_yl.detach()*yl_gray, [m.detach()*y for m,y in zip(m_yh, yh_gray)])).clamp(0,1)
+        
         cartoonx = []
         for myl,myh,l,h in zip(m_yl,m_yh,yl,yh):
             cartoonx_per_rgb = self.inverse_dwt(
@@ -180,9 +181,10 @@ class CartoonX:
                 )
             cartoonx.append(cartoonx_per_rgb.clamp(0,1))
         
-        for m in cartoonx:
-            for n in m:
-                unet(n)
+        for myl,myh in zip(m_yl,m_yh):
+            truey = concat(m_yl, m_yh)
+            pred = unet(x)
+            
         
         '''
         cartoonx_per_rgb = [
