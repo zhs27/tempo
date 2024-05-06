@@ -161,7 +161,7 @@ class CartoonX:
             loss = distortion + self.l1lambda * l1waveletcoefs 
             # Perform optimization step
             opt.zero_grad()
-            loss.backward()
+            loss.backward(retain_graph=True)
             opt.step()
 
             # Project masks into [0,1]
@@ -170,7 +170,7 @@ class CartoonX:
                     m.clamp_(0,1)
                 for m in m_yh: 
                     for n in m: n.clamp_(0,1)
-            print(m_yh[0].size(), m_yl[0].size())
+
 
         # Invert wavelet coefficient mask back to pixel space as grayscale images
         #cartoonx = self.inverse_dwt((m_yl.detach()*yl_gray, [m.detach()*y for m,y in zip(m_yh, yh_gray)])).clamp(0,1)
