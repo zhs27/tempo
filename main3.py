@@ -27,7 +27,7 @@ def get_arg():
     cfg=argparse.ArgumentParser()
     cfg.add_argument('--exp_name',default='try')
     cfg.add_argument('--multigpu',default=False)
-    cfg.add_argument('--epochs',default=30,type=int)
+    cfg.add_argument('--epochs',default=2,type=int)
     cfg.add_argument('--decay_ep',default=5,type=int)
     cfg.add_argument('--gamma',default=0.7,type=float)
     cfg.add_argument('--lr',default=1e-4,type=float)
@@ -37,7 +37,7 @@ def get_arg():
     cfg.add_argument('--lr_sch',default=False)
     cfg.add_argument('--data_aug',default=True)
     cfg.add_argument('--dataset',default='ModeNet40C',choices=['ScanObjectNN','ModeNet40','ModeNet40C'])
-    cfg.add_argument('--pretrain_epochs',default=20,type=int)
+    cfg.add_argument('--pretrain_epochs',default=1,type=int)
 
 
     # ======== few shot cfg =============#
@@ -255,10 +255,7 @@ def train_model(modelQ,modelQh, train_loader,val_loader,cfg, upfreq = 5):
 
     for e in tqdm_epochs:
         train_summary=train_one_epoch(modelQ,modelQh,optimizerQ, None)
-        if e == 0:
-            val_summary,conf_mat,batch_acc_list=eval_one_epoch(modelQ,modelQh,xtocartoonx, mode = "validg")
-        else:
-            val_summary,conf_mat,batch_acc_list=eval_one_epoch(modelQ,modelQh,xtocartoonx)
+        val_summary,conf_mat,batch_acc_list=eval_one_epoch(modelQ,modelQh,xtocartoonx)
         summary={**train_summary,**val_summary}
         
         if cfg.lr_sch:
@@ -352,24 +349,13 @@ def run_one_epoch(modelQ,modelQh,bar,mode,loss_func,xtocartoonx, optimizerQ=None
             loss.backward()
             optimizerQ.step()
 
-             
-
-        elif mode == 'valid':
-            with torch.no_grad():
-                x = get_img(x)
-                x=x.unsqueeze(2)
-                if modelQh != None:
-                    pred,loss=modelQ(x, xtocartoonx, modelQh)
-                else:
-                    pred,loss=modelQ(x)
-
-        elif mode == 'validg':   
-                x = get_img(x)
-                x = x.unsqueeze(2)
-                if modelQh != None:
-                    pred,loss=modelQ(x, xtocartoonx, modelQh)
-                else:
-                    pred,loss=modelQ(x)
+        else:   
+            x = get_img(x)
+            x = x.unsqueeze(2)
+            if modelQh != None:
+                pred,loss=modelQ(x, xtocartoonx, modelQh, "eval")
+            else:
+                pred,loss=modelQ(x)
         
         
         summary['loss']+=[loss.item()]

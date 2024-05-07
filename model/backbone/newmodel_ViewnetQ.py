@@ -188,7 +188,7 @@ class ViewNetpt(nn.Module):
 
 
 
-    def forward(self,inpt, xtocartoonx= None, modelQh = None):
+    def forward(self,inpt, xtocartoonx= None, modelQh = None, mode = "train"):
         '''
         norm_img shape is (20,6,128,128)
         20 is the batch_size
@@ -213,6 +213,8 @@ class ViewNetpt(nn.Module):
             xtocartoonx.update(inpt = torch.stack(cartoonx))
             inpt = torch.stack(cartoonx)
         
+        if mode == "eval":
+            torch.set_grad_enabled(False)
 
         
         x=self.set_layer1(inpt)
@@ -261,6 +263,7 @@ class ViewNetpt(nn.Module):
         feature = torch.cat(feature, 2).permute(2, 0, 1).contiguous()
         feature=self.final(feature)
 
+        torch.set_grad_enabled(True)
         # a=self.compress(feature.permute(1,2,0)).squeeze()
         return feature
 
