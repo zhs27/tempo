@@ -222,9 +222,7 @@ def main(cfg):
                 mh = torch.histc(m[j], bins = 10,min = 0, max = 3)
                 nh = torch.histc(n[j], bins = 10 ,min = 0, max = 3)
                 uh = torch.histc(unetpred[j], bins = 10 ,min = 0, max = 3)
-                plt.plot(mh)
-                plt.plot(nh)
-                plt.plot(uh)
+                print(mh, nh, uh)
             
 
 
