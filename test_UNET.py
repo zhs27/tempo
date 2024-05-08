@@ -184,8 +184,8 @@ def main(cfg):
 
     s = UNet(n_channels=1, n_classes=1)
     s = s.to(cfg.device)
-    unetopt = optim.Adam(s.parameters(),
-                              lr=1e-1, weight_decay=1e-5)
+    unetopt = optim.RMSprop(s.parameters(),
+                              lr=1e-1, weight_decay=1e-8, momentum=0.999, foreach=True)
     criterion = nn.CrossEntropyLoss()
     s.train()
     
