@@ -3,6 +3,7 @@ from tqdm import tqdm
 import argparse
 import numpy as np
 from torchvision.utils import save_image
+import matplotlib.pyplot as plt
 
 # from Dataloader.model_net_cross_val import get_sets
 # from Dataloader.scanobjectnn_cross_val import get_sets
@@ -218,6 +219,12 @@ def main(cfg):
                 save_image(m[j],picname1)
                 save_image(n[j],picname2)
                 save_image(unetpred[j],picname3)
+                mh = torch.histogram(m[j], bins = 10,range = (0,3))
+                nh = torch.histogram(n[j], bins = 10 ,range = (0,3))
+                uh = torch.histogram(unetpred[j], bins = 10 ,range = (0,3))
+                plt.plot(mh)
+                plt.plot(nh)
+                plt.plot(uh)
             
 
 
