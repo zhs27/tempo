@@ -219,10 +219,12 @@ def main(cfg):
                 save_image(m[j],picname1)
                 save_image(n[j],picname2)
                 save_image(unetpred[j],picname3)
-                mh = torch.histc(m[j], bins = 10,min = 0, max = 3)
-                nh = torch.histc(n[j], bins = 10 ,min = 0, max = 3)
-                uh = torch.histc(unetpred[j], bins = 10 ,min = 0, max = 3)
-                print(mh, nh, uh)
+                mh = torch.histc(m[j], bins = 10,min = 0, max = 1)
+                nh = torch.histc(n[j], bins = 10 ,min = 0, max = 1)
+                uh = torch.histc(unetpred[j], bins = 10 ,min = 0, max = 1)
+                print(mh)
+                print(nh)
+                print(uh)
             
 
 
