@@ -188,7 +188,7 @@ class ViewNetpt(nn.Module):
 
 
 
-    def forward(self,inpt, xtocartoonx= None, modelQh = None, mode = "train"):
+    def forward(self,inpt, xtocartoonx= None, modelQh = None, mode = "train", mixup=False, target=None,lam=0.4):
         '''
         norm_img shape is (20,6,128,128)
         20 is the batch_size
@@ -200,21 +200,23 @@ class ViewNetpt(nn.Module):
         "maximize_label": False, "optim_steps": 30,  
         "noise_bs": 1, 'mask_init': 'ones'
         }
-        if(xtocartoonx != None and inpt in xtocartoonx):
-            cartoonx =  xtocartoonx[inpt]
-            inpt = cartoonx
-        elif(modelQh != None):
-            '''
-            get masked img with modelQh and cartoonX
-            '''
+        if modelQh != None :
             cartoonx_method = CartoonX(model=modelQh, device='cuda', **CARTOONX_HPARAMS)
-            pred,loss=modelQh(inpt)
-            cartoonx = cartoonx_method(inpt,torch.argmax(pred, dim = 1).detach())
-            xtocartoonx.update(inpt = torch.stack(cartoonx))
-            inpt = torch.stack(cartoonx)
+            with torch.no_grad():
+                pred,loss=modelQh(inpt)
+            if(xtocartoonx != None):
+                cartoonx = cartoonx_method(inpt,torch.argmax(pred, dim = 1).detach(),xtocartoonx)
+                inpt = torch.stack(cartoonx)
+            else:
+                '''
+                get masked img with modelQh and cartoonX
+                '''
+                cartoonx = cartoonx_method(inpt,torch.argmax(pred, dim = 1).detach())
+                inpt = torch.stack(cartoonx)
         
         if mode == "eval":
             torch.set_grad_enabled(False)
+
 
         
         x=self.set_layer1(inpt)
@@ -265,10 +267,57 @@ class ViewNetpt(nn.Module):
 
         torch.set_grad_enabled(True)
         # a=self.compress(feature.permute(1,2,0)).squeeze()
-        return feature
+        target_a = target_b = target
+        if mixup == True and target != None:
+             x, target_a, target_b, lam = self.mixup_data4(x, target, lam=lam)
 
 
+        return feature, target_a, target_b
+    
+    
+    def uniform_mixup(self, x1, x2, lam):
+        '''
+        point cloud uniform sampling: sampling lambda*npoints from x1, and
+        sampling (1-lambda)*npoints from x2, then concatenate them to get
+        the mixed_x
+        Args: 
+            x1: (batch_size, feature_dimentionality, num_points)
+            x2: (batch_size, feature_dimentionality, num_points)
+            lam: uniformly sampled from U[0,1]
+        Returns:
+            mixed_x: (batch_size, feature_dimentionality, num_points)
+        '''
+        device = x1.device
+        bs, fd, npoints = x1.shape
+        # x1 = x1.permute(0, 2, 1)
+        # x2 = x2.permute(0, 2, 1)
+        
+        npoints_x1 = int(lam * npoints)
+        npoints_x2 = npoints - npoints_x1
+        
+        # rand_id1 = torch.randperm(npoints).to(device)
+        # rand_id2 = torch.randperm(npoints).to(device)
 
+        new_x2 = x2[:, :, :npoints_x2]
+        new_x1 = x1[:, :, :npoints_x1]
+        
+        mixed_x = torch.cat((new_x1, new_x2), dim=-1)
+        # mixed_x = mixed_x.permute(0, 2, 1)
+        
+        return mixed_x
+        
+    def mixup_data4(self, x, y, lam):
+
+        '''Compute the mixup data. Return mixed inputs, pairs of targets, and lambda'''
+    
+        batch_size = x.size()[0]
+        index = torch.randperm(batch_size)
+        if torch.cuda.is_available():
+            index = index.cuda()
+        mixed_x = self.uniform_mixup(x, x[index], lam)#lam * x + (1 - lam) * x[index,:]
+        y_a, y_b = y, y[index]
+
+        return mixed_x, y_a, y_b, lam
 
 if __name__=='__main__':
     '''

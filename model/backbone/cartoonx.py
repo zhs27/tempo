@@ -52,7 +52,7 @@ class CartoonX:
         self.inverse_dwt = DWTInverse(mode=dwt_params['mode'], wave=dwt_params['wave']).to(device)
         self.get_perturbation = None # this method will be assigned in compute_obfuscation_strategy
 
-    def __call__(self, x, target):
+    def __call__(self, x, target, xtocartoonx = None):
         """
         args:
             x: torch.Tensor of shape (bs,c,h,w)
@@ -66,7 +66,15 @@ class CartoonX:
         l1wavelet_loss = []
         distortion_loss = []
 
-
+        if xtocartoonx != None:
+            ret = []
+            for i in x:
+                if i in xtocartoonx:
+                    ret.append(xtocartoonx[i])
+                else:
+                    break
+            if len(ret) == len(x):
+                return ret
         
         #apply dwt on all images
         yl = []
@@ -181,7 +189,10 @@ class CartoonX:
                      [m.detach()*y[:,0,:,:,:].unsqueeze(1) for m,y in zip(myh, h)]
                     )
                 )
+            
             cartoonx.append(cartoonx_per_rgb.clamp(0,1))
+        for i,j in zip(x, cartoonx):
+            xtocartoonx.update(i = j)
         
         
         '''

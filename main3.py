@@ -174,7 +174,7 @@ def train_model(modelQ,modelQh, train_loader,val_loader,cfg, upfreq = 5):
 
     def train_one_epoch(m1, m2, optimizer, xtocartoonx):
         bar=tqdm(train_loader,ncols=100,unit='batch',leave=False)
-        epsum=run_one_epoch(m1,m2,bar,'train',loss_func=loss_func,xtocartoonx = xtocartoonx, optimizerQ=optimizer)
+        epsum=run_one_epoch(m1,m2,bar,'train',loss_func=loss_func,xtocartoonx = xtocartoonx, optimizerQ=optimizer, mixup = True)
         summary={"loss/train":np.mean(epsum['loss'])}
         return summary
         
@@ -321,7 +321,7 @@ def get_img(inpt):
 
 
 
-def run_one_epoch(modelQ,modelQh,bar,mode,loss_func,xtocartoonx, optimizerQ=None,optimizerQh=None,show_interval=10):
+def run_one_epoch(modelQ,modelQh,bar,mode,loss_func,xtocartoonx, optimizerQ=None,optimizerQh=None,mixup = False,show_interval=10):
     confusion_mat=np.zeros((cfg.k_way,cfg.k_way))
     summary={"acc":[],"loss":[]}
     device=next(modelQ.parameters()).device
@@ -342,10 +342,12 @@ def run_one_epoch(modelQ,modelQh,bar,mode,loss_func,xtocartoonx, optimizerQ=None
             x = get_img(x)
             x=x.unsqueeze(2)
             optimizerQ.zero_grad()
-            if modelQh != None:
+            if modelQh != None and mixup == True:
+                pred,loss=modelQ(x, xtocartoonx, modelQh, mixup = True)
+            elif modelQh != None:
                 pred,loss=modelQ(x, xtocartoonx, modelQh)
             else:
-                pred,loss=modelQ(x)
+                pred,loss=modelQ(x, xtocartoonx, modelQh)
             loss.backward()
             optimizerQ.step()
 
