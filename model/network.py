@@ -137,11 +137,12 @@ class fs_network(nn.Module):
         embeding = []
 
         if model != None and mixup == True:
-            embeding, target_a, target_b = self.backbone(x, model, xtocartoonx, mode, mixup = mixup,target=self.label,lam=lam)
+            print(111111)
+            embeding, target_a, target_b = self.backbone(x, xtocartoonx,model,mode, mixup = mixup,target=self.label,lam=lam)
             print(111111)
             
         elif model != None:
-            embeding,_,_ = self.backbone(x, model, xtocartoonx, mode)
+            embeding,_,_ = self.backbone(x,  xtocartoonx,model, mode)
         else:
             embeding,_,_=self.backbone(x)
         print(mixup, len(target_a))
