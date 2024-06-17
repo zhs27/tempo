@@ -148,6 +148,8 @@ class fs_network(nn.Module):
 
         if mixup:
             qry_target_a, qry_target_b = target_a[self.k*self.n:], target_b[self.k*self.n:]
+            qry_target_a = torch.stack(qry_target_a)
+            qry_target_b = torch.stack(qry_target_b)
             loss_0, loss_1 = F.cross_entropy(pred, qry_target_a), F.cross_entropy(pred, qry_target_b)
             # loss = lam*loss_0 + (1-lam)*loss_1
             loss = loss_0 + loss_1
