@@ -5,7 +5,7 @@ REF: Wavelet Integrated CNNs for Noise-Robust Image Classification
 import numpy as np
 import math
 from torch.nn import Module
-from .DWT import *
+from DWT import *
 import pywt
 class DWT_1D(Module):
     """
