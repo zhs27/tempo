@@ -343,11 +343,11 @@ def run_one_epoch(modelQ,modelQh,bar,mode,loss_func,xtocartoonx, optimizerQ=None
             x=x.unsqueeze(2)
             optimizerQ.zero_grad()
             if modelQh != None and mixup == True:
-                pred,loss=modelQ(x, xtocartoonx, modelQh, mixup = True)
+                pred,loss=modelQ(x, modelQh, xtocartoonx,  mixup = True)
             elif modelQh != None:
-                pred,loss=modelQ(x, xtocartoonx, modelQh)
+                pred,loss=modelQ(x, modelQh, xtocartoonx)
             else:
-                pred,loss=modelQ(x, xtocartoonx, modelQh)
+                pred,loss=modelQ(x,modelQh, xtocartoonx)
             loss.backward()
             optimizerQ.step()
 
