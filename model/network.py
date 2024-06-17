@@ -132,8 +132,12 @@ class fs_network(nn.Module):
         lam = np.random.beta(alpha, alpha)
         qry_lam = np.random.beta(alpha, alpha)
         sppt_lam = np.random.beta(a=10.0, b=2.0)
+        target_a = []
+        target_b = []
+        embeding = []
         if model != None and xtocartoonx != None and mixup == True:
             embeding, target_a, target_b = self.backbone(x, target=self.label, mixup = mixup, lam=lam)
+            print(len(target_a), len(target_b))
         elif model != None and xtocartoonx != None:
             embeding,_,_ = self.backbone(x, model, xtocartoonx, mode)
         else:
