@@ -254,7 +254,7 @@ def train_model(modelQ,modelQh, train_loader,val_loader,cfg, upfreq = 5):
     xtocartoonx = {} 
 
     for e in tqdm_epochs:
-        train_summary=train_one_epoch(modelQ,modelQh,optimizerQ, None)
+        train_summary=train_one_epoch(modelQ,modelQh,optimizerQ,xtocartoonx)
         val_summary,conf_mat,batch_acc_list=eval_one_epoch(modelQ,modelQh,xtocartoonx)
         summary={**train_summary,**val_summary}
         
