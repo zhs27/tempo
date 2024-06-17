@@ -137,9 +137,10 @@ class fs_network(nn.Module):
         embeding = []
 
         if model != None and mixup == True:
-            embeding, target_a, target_b = self.backbone(x, target=self.label, mixup = mixup, lam=lam)
-            print(len(target_a), len(target_b))
+            embeding, target_a, target_b = self.backbone(x, model, xtocartoonx, mode, target=self.label, mixup = mixup, lam=lam)
+            print(1)
         elif model != None:
+            print(2)
             embeding,_,_ = self.backbone(x, model, xtocartoonx, mode)
         else:
             embeding,_,_=self.backbone(x)
@@ -147,7 +148,7 @@ class fs_network(nn.Module):
 
         pred,loss=self.fs_head(embeding,[self.s_label,self.q_label])
 
-        if mixup:
+        if mixup == True:
             qry_target_a, qry_target_b = target_a[self.k*self.n:], target_b[self.k*self.n:]
             qry_target_a = torch.stack(qry_target_a)
             qry_target_b = torch.stack(qry_target_b)
