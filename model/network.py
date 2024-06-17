@@ -8,7 +8,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 # ======= backbone ============
-from model.backbone.DGCNN import DGCNN_fs
 from model.backbone.multiview import mutiview_net
 from model.backbone.Gaitset_net import Gateset_net
 from model.backbone.mymodel_moreview import ViewNet
@@ -49,11 +48,8 @@ class fs_network(nn.Module):
 
 
     def get_backbone(self,backbone):
-        if backbone=='dgcnn':
-            print("DGCNN is loaded")
-            return DGCNN_fs()
 
-        elif backbone=='mv':
+        if backbone=='mv':
             print("multiview is loaded")
             return mutiview_net()
         
