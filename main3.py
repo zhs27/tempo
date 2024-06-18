@@ -355,7 +355,7 @@ def run_one_epoch(modelQ,modelQh,bar,mode,loss_func,xtocartoonx, optimizerQ=None
             x = get_img(x)
             x = x.unsqueeze(2)
             if modelQh != None:
-                pred,loss=modelQ(x, xtocartoonx, modelQh, "eval")
+                pred,loss=modelQ(x, modelQh,xtocartoonx, "eval")
             else:
                 pred,loss=modelQ(x)
         
