@@ -74,6 +74,7 @@ class CartoonX:
                 else:
                     break
             if len(ret) == len(x):
+                print(1)
                 return ret
         
         #apply dwt on all images
