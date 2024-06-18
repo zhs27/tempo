@@ -137,7 +137,7 @@ class fs_network(nn.Module):
         embeding = []
 
         if model != None and mixup == True:
-            embeding, target_a, target_b = self.backbone(x, xtocartoonx,model,mode)
+            embeding, target_a, target_b = self.backbone(x, xtocartoonx,model,mode, mixup = mixup,target=self.label,lam=lam)
             
         elif model != None:
             embeding,_,_ = self.backbone(x,  xtocartoonx,model, mode)
@@ -145,7 +145,7 @@ class fs_network(nn.Module):
             embeding,_,_=self.backbone(x)
 
         pred,loss=self.fs_head(embeding,[self.s_label,self.q_label])
-        '''
+
         if mixup == True:
             qry_target_a, qry_target_b = target_a[self.k*self.n:], target_b[self.k*self.n:]
             qry_target_a = torch.stack(qry_target_a)
@@ -153,7 +153,7 @@ class fs_network(nn.Module):
             loss_0, loss_1 = F.cross_entropy(pred, qry_target_a), F.cross_entropy(pred, qry_target_b)
             # loss = lam*loss_0 + (1-lam)*loss_1
             loss = loss_0 + loss_1
-        '''
+        
         if torch.isnan(loss):
             save_dict={}
             save_dict['inpt']=x

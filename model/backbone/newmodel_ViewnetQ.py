@@ -288,7 +288,8 @@ class ViewNetpt(nn.Module):
             mixed_x: (batch_size, feature_dimentionality, num_points)
         '''
         device = x1.device
-        bs, fd, npoints = x1.shape
+        print(x1.shape)
+        npoints = x1.shape
         # x1 = x1.permute(0, 2, 1)
         # x2 = x2.permute(0, 2, 1)
         
