@@ -392,7 +392,21 @@ def run_one_epoch(modelQ,modelQh,bar,mode,loss_func,xtocartoonx, optimizerQ=None
     
     return summary
 
-def uniform_mixup(self, x1, x2, lam):
+def mixup_data4(x, y, lam):
+
+    '''Compute the mixup data. Return mixed inputs, pairs of targets, and lambda'''
+    
+    batch_size = x.size()[0]
+    index = torch.randperm(batch_size)
+    if torch.cuda.is_available():
+        index = index.cuda()
+    mixed_x = uniform_mixup(x, x[index], lam)#lam * x + (1 - lam) * x[index,:]
+    y_a, y_b = y, y[index]
+
+    return mixed_x, y_a, y_b, lam           
+
+
+def uniform_mixup(x1, x2, lam):
         '''
         point cloud uniform sampling: sampling lambda*npoints from x1, and
         sampling (1-lambda)*npoints from x2, then concatenate them to get
@@ -423,18 +437,6 @@ def uniform_mixup(self, x1, x2, lam):
         
         return mixed_x
         
-def mixup_data4(self, x, y, lam):
-
-    '''Compute the mixup data. Return mixed inputs, pairs of targets, and lambda'''
-    
-    batch_size = x.size()[0]
-    index = torch.randperm(batch_size)
-    if torch.cuda.is_available():
-        index = index.cuda()
-    mixed_x = self.uniform_mixup(x, x[index], lam)#lam * x + (1 - lam) * x[index,:]
-    y_a, y_b = y, y[index]
-
-    return mixed_x, y_a, y_b, lam           
 
 
 
