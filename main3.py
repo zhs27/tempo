@@ -37,7 +37,7 @@ def get_arg():
     cfg.add_argument('--lr_sch',default=False)
     cfg.add_argument('--data_aug',default=True)
     cfg.add_argument('--dataset',default='ModeNet40C',choices=['ScanObjectNN','ModeNet40','ModeNet40C'])
-    cfg.add_argument('--pretrain_epochs',default=20,type=int)
+    cfg.add_argument('--pretrain_epochs',default=1,type=int)
 
 
     # ======== few shot cfg =============#
@@ -174,7 +174,7 @@ def train_model(modelQ,modelQh, train_loader,val_loader,cfg, upfreq = 5):
 
     def train_one_epoch(m1, m2, optimizer, xtocartoonx):
         bar=tqdm(train_loader,ncols=100,unit='batch',leave=False)
-        epsum=run_one_epoch(m1,m2,bar,'train',loss_func=loss_func,xtocartoonx = xtocartoonx, optimizerQ=optimizer, mixup = False)
+        epsum=run_one_epoch(m1,m2,bar,'train',loss_func=loss_func,xtocartoonx = xtocartoonx, optimizerQ=optimizer, mixup = True)
         summary={"loss/train":np.mean(epsum['loss'])}
         return summary
         
@@ -339,6 +339,7 @@ def run_one_epoch(modelQ,modelQh,bar,mode,loss_func,xtocartoonx, optimizerQ=None
         
         if mode=='train':
             #Train model Q#
+            print(x.size)
             x = get_img(x)
             x=x.unsqueeze(2)
             optimizerQ.zero_grad()
