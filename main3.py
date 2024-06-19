@@ -398,8 +398,6 @@ def mixup_data4(x, y, lam):
     
     batch_size = x.size()[0]
     index = torch.randperm(batch_size)
-    if torch.cuda.is_available():
-        index = index.cuda()
     mixed_x = uniform_mixup(x, x[index], lam)#lam * x + (1 - lam) * x[index,:]
     y_a, y_b = y, y[index]
 
