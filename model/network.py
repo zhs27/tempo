@@ -124,29 +124,21 @@ class fs_network(nn.Module):
              
      
     
-    def forward(self,x,model = None,xtocartoonx = None, mode = "train", mixup=False, alpha=1.0):
+    def forward(self,x,model = None,xtocartoonx = None, mode = "train", mixup=False, target_a = None, target_b = None, lam = 0.4):
         '''
         If backbone is the gait related network
         the embeding shape is (bin,sample_num,feat_dim), like (62,20,256)
         '''
-        lam = np.random.beta(alpha, alpha)
-        qry_lam = np.random.beta(alpha, alpha)
-        sppt_lam = np.random.beta(a=10.0, b=2.0)
-        target_a = []
-        target_b = []
-        embeding = []
 
-        if model != None and mixup == True:
-            embeding, target_a, target_b = self.backbone(x, xtocartoonx,model,mode, mixup = mixup,target=self.label,lam=lam)
             
-        elif model != None:
-            embeding,_,_ = self.backbone(x,  xtocartoonx,model, mode)
+        if model != None:
+            embeding = self.backbone(x,  xtocartoonx,model, mode)
         else:
-            embeding,_,_=self.backbone(x)
+            embeding = self.backbone(x)
 
         pred,loss=self.fs_head(embeding,[self.s_label,self.q_label])
 
-        if mixup == True:
+        if mixup == True and target_a != None and target_b != None:
             qry_target_a, qry_target_b = target_a[self.k*self.n:], target_b[self.k*self.n:]
             qry_target_a = torch.stack(qry_target_a)
             qry_target_b = torch.stack(qry_target_b)

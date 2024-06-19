@@ -188,7 +188,7 @@ class ViewNetpt(nn.Module):
 
 
 
-    def forward(self,inpt, xtocartoonx= None, modelQh = None, mode = "train", mixup=False, target=None,lam=0.4):
+    def forward(self,inpt, xtocartoonx= None, modelQh = None, mode = "train"):
         '''
         norm_img shape is (20,6,128,128)
         20 is the batch_size
@@ -267,12 +267,8 @@ class ViewNetpt(nn.Module):
 
         torch.set_grad_enabled(True)
         # a=self.compress(feature.permute(1,2,0)).squeeze()
-        target_a = target_b = target
-        if mixup == True and target != None:
-             x, target_a, target_b, lam = self.mixup_data4(x, target, lam=lam)
-
-
-        return feature, target_a, target_b
+        
+        return feature
     
     
     def uniform_mixup(self, x1, x2, lam):

@@ -339,16 +339,23 @@ def run_one_epoch(modelQ,modelQh,bar,mode,loss_func,xtocartoonx, optimizerQ=None
         
         if mode=='train':
             #Train model Q#
-            print(x.size)
+            
+            #mixup
+            s_label=torch.arange(cfg.k_way).repeat_interleave(cfg.n_shot)
+            q_label=torch.arange(cfg.k_way).repeat_interleave(cfg.query)
+            label = torch.cat((s_label, q_label))
+            lam = np.random.beta(1.0, 1.0)
+            if mixup == True:
+                x,y_a,y_b,lam = mixup_data4(x, label, lam=lam)
             x = get_img(x)
             x=x.unsqueeze(2)
             optimizerQ.zero_grad()
-            if modelQh != None and mixup == True:
-                pred,loss=modelQ(x, modelQh, xtocartoonx,  mixup = True)
-            elif modelQh != None:
+            if modelQh != None and xtocartoonx != None and mixup == True:
+                pred,loss=modelQ(x, modelQh, xtocartoonx,  mixup = True, target_a = y_a, target_b = y_b, lam = lam)
+            elif modelQh != None and xtocartoonx != None:
                 pred,loss=modelQ(x, modelQh, xtocartoonx)
             else:
-                pred,loss=modelQ(x,modelQh, xtocartoonx)
+                pred,loss=modelQ(x)
             loss.backward()
             optimizerQ.step()
 
@@ -384,7 +391,50 @@ def run_one_epoch(modelQ,modelQh,bar,mode,loss_func,xtocartoonx, optimizerQ=None
         summary['cfm']=confusion_mat
     
     return summary
-            
+
+def uniform_mixup(self, x1, x2, lam):
+        '''
+        point cloud uniform sampling: sampling lambda*npoints from x1, and
+        sampling (1-lambda)*npoints from x2, then concatenate them to get
+        the mixed_x
+        Args: 
+            x1: (batch_size, feature_dimentionality, num_points)
+            x2: (batch_size, feature_dimentionality, num_points)
+            lam: uniformly sampled from U[0,1]
+        Returns:
+            mixed_x: (batch_size, feature_dimentionality, num_points)
+        '''
+        device = x1.device
+        bs, fd, npoints = x1.shape
+        # x1 = x1.permute(0, 2, 1)
+        # x2 = x2.permute(0, 2, 1)
+        
+        npoints_x1 = int(lam * npoints)
+        npoints_x2 = npoints - npoints_x1
+        
+        # rand_id1 = torch.randperm(npoints).to(device)
+        # rand_id2 = torch.randperm(npoints).to(device)
+
+        new_x2 = x2[:, :, :npoints_x2]
+        new_x1 = x1[:, :, :npoints_x1]
+        
+        mixed_x = torch.cat((new_x1, new_x2), dim=-1)
+        # mixed_x = mixed_x.permute(0, 2, 1)
+        
+        return mixed_x
+        
+def mixup_data4(self, x, y, lam):
+
+    '''Compute the mixup data. Return mixed inputs, pairs of targets, and lambda'''
+    
+    batch_size = x.size()[0]
+    index = torch.randperm(batch_size)
+    if torch.cuda.is_available():
+        index = index.cuda()
+    mixed_x = self.uniform_mixup(x, x[index], lam)#lam * x + (1 - lam) * x[index,:]
+    y_a, y_b = y, y[index]
+
+    return mixed_x, y_a, y_b, lam           
 
 
 
