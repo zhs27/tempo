@@ -172,9 +172,9 @@ def train_model(modelQ,modelQh, train_loader,val_loader,cfg, upfreq = 5):
         lr_scheduleQh=torch.optim.lr_scheduler.MultiStepLR(optimizerQh,milestones=np.arange(10,cfg.epochs,cfg.decay_ep),gamma=cfg.gamma)
     
 
-    def train_one_epoch(m1, m2, optimizer, xtocartoonx):
+    def train_one_epoch(m1, m2, optimizer, xtocartoonx, mixup = False):
         bar=tqdm(train_loader,ncols=100,unit='batch',leave=False)
-        epsum=run_one_epoch(m1,m2,bar,'train',loss_func=loss_func,xtocartoonx = xtocartoonx, optimizerQ=optimizer, mixup = True)
+        epsum=run_one_epoch(m1,m2,bar,'train',loss_func=loss_func,xtocartoonx = xtocartoonx, optimizerQ=optimizer, mixup = mixup)
         summary={"loss/train":np.mean(epsum['loss'])}
         return summary
         
@@ -254,7 +254,7 @@ def train_model(modelQ,modelQh, train_loader,val_loader,cfg, upfreq = 5):
     xtocartoonx = {} 
 
     for e in tqdm_epochs:
-        train_summary=train_one_epoch(modelQ,modelQh,optimizerQ,xtocartoonx)
+        train_summary=train_one_epoch(modelQ,modelQh,optimizerQ,xtocartoonx, True)
         val_summary,conf_mat,batch_acc_list=eval_one_epoch(modelQ,modelQh,xtocartoonx)
         summary={**train_summary,**val_summary}
         
