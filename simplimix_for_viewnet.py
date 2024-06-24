@@ -214,7 +214,7 @@ def train_model(model,train_loader,val_loader,cfg):
     tqdm_epochs=tqdm(range(cfg.epochs),unit='epoch',ncols=100)
     for e in tqdm_epochs:
         train_summary=train_one_epoch()
-        val_summary,conf_mat,batch_acc_list,val_accintype=eval_one_epoch()
+        val_summary,conf_mat,batch_acc_list=eval_one_epoch()
         summary={**train_summary,**val_summary}
         
         if cfg.lr_sch:
@@ -222,7 +222,7 @@ def train_model(model,train_loader,val_loader,cfg):
         
         accuracy=val_summary['meac']
         acc_list.append(val_summary['meac'])
-        accintype_list.append(val_accintype)
+        
 
         # === get 95% interval =====
         std_acc=np.std(batch_acc_list)
@@ -231,12 +231,10 @@ def train_model(model,train_loader,val_loader,cfg):
 
         max_acc_index=np.argmax(acc_list)
         max_ac=acc_list[max_acc_index]
-        max_accintype = accintype_list[max_acc_index]
         max_interval=interval_list[max_acc_index]
         # ===========================
 
         logger.debug('epoch {}: {}. Highest: {}. Interval: {}'.format(e,accuracy,max_ac,max_interval))
-        print("best acc in type:", max_accintype)
         # print('epoch {}: {}. Highese: {}'.format(e,accuracy,np.max(acc_list)))
         
         if np.max(acc_list)==acc_list[-1]:
