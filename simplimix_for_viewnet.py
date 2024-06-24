@@ -25,7 +25,7 @@ def get_arg():
     cfg=argparse.ArgumentParser()
     cfg.add_argument('--exp_name',default='try')
     cfg.add_argument('--multigpu',default=False)
-    cfg.add_argument('--epochs',default=80,type=int)
+    cfg.add_argument('--epochs',default=120,type=int)
     cfg.add_argument('--decay_ep',default=5,type=int)
     cfg.add_argument('--gamma',default=0.7,type=float)
     cfg.add_argument('--lr',default=1e-4,type=float)
@@ -169,7 +169,7 @@ def train_model(model,train_loader,val_loader,cfg):
     
     def train_one_epoch():
         bar=tqdm(train_loader,ncols=100,unit='batch',leave=False)
-        epsum=run_one_epoch(model,bar,'train',loss_func=loss_func,optimizer=optimizer)
+        epsum=run_one_epoch(model,bar,'train',loss_func=loss_func,optimizer=optimizer, mixup=True)
         summary={"loss/train":np.mean(epsum['loss'])}
         return summary
         
