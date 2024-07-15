@@ -193,8 +193,8 @@ def main(cfg):
         cartoonx = torch.stack(cartoonx)
         print(cartoonx.size())
         for j in range(6):
-            picname1 = str(j) + '.png'
-            picname2 = 'cartoonx' + str(j) + '.png'
+            picname1 = str(i) + str(j) + '.png'
+            picname2 = 'cartoonx' + str(i) + str(j) + '.png'
             save_image(x[0,j],picname1)
             save_image(cartoonx[0,j],picname2)
             quit
