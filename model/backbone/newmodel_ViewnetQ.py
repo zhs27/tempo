@@ -200,7 +200,8 @@ class ViewNetpt(nn.Module):
         "maximize_label": False, "optim_steps": 30,  
         "noise_bs": 1, 'mask_init': 'ones'
         }
-        if modelQh != None :
+        
+        if modelQh != None and mode == "train" :
             cartoonx_method = CartoonX(model=modelQh, device='cuda', **CARTOONX_HPARAMS)
             with torch.no_grad():
                 pred,loss=modelQh(inpt)
