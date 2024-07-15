@@ -192,9 +192,10 @@ class CartoonX:
                 )
             
             cartoonx.append(cartoonx_per_rgb.clamp(0,1))
+        '''
         for i,j in zip(x, cartoonx):
             xtocartoonx.update(i = j)
-        
+        '''
         
         '''
         cartoonx_per_rgb = [
