@@ -253,8 +253,8 @@ def train_model(modelQ,modelQh, train_loader,val_loader,cfg, upfreq = 5):
     interval_list=[]
 
     for e in tqdm_epochs:
-        train_summary=train_one_epoch(modelQ,modelQh,optimizerQ)
-        val_summary,conf_mat,batch_acc_list=eval_one_epoch(modelQ,modelQh)
+        train_summary=train_one_epoch(modelQ,None,optimizerQ)
+        val_summary,conf_mat,batch_acc_list=eval_one_epoch(modelQ,None)
         summary={**train_summary,**val_summary}
         
         if cfg.lr_sch:
