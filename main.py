@@ -177,7 +177,6 @@ def train_model(model,train_loader,val_loader,cfg):
     def eval_one_epoch():
         bar=tqdm(val_loader,ncols=100,unit='batch',leave=False)
         epsum=run_one_epoch(model,bar,"valid",loss_func=loss_func)
-        epsum['accintype'] = np.mean(epsum['accintype'], axis=0)
         mean_acc=np.mean(epsum['acc'])
         summary={'meac':mean_acc}
         summary["loss/valid"]=np.mean(epsum['loss'])
@@ -208,13 +207,12 @@ def train_model(model,train_loader,val_loader,cfg):
     
     # ========= train start ===============
     acc_list=[]
-    accintype_list=[]
     interval_list=[]
 
     tqdm_epochs=tqdm(range(cfg.epochs),unit='epoch',ncols=100)
     for e in tqdm_epochs:
         train_summary=train_one_epoch()
-        val_summary,conf_mat,batch_acc_list,val_accintype=eval_one_epoch()
+        val_summary,conf_mat,batch_acc_list=eval_one_epoch()
         summary={**train_summary,**val_summary}
         
         if cfg.lr_sch:
@@ -222,7 +220,6 @@ def train_model(model,train_loader,val_loader,cfg):
         
         accuracy=val_summary['meac']
         acc_list.append(val_summary['meac'])
-        accintype_list.append(val_accintype)
 
         # === get 95% interval =====
         std_acc=np.std(batch_acc_list)
@@ -231,12 +228,10 @@ def train_model(model,train_loader,val_loader,cfg):
 
         max_acc_index=np.argmax(acc_list)
         max_ac=acc_list[max_acc_index]
-        max_accintype = accintype_list[max_acc_index]
         max_interval=interval_list[max_acc_index]
         # ===========================
 
         logger.debug('epoch {}: {}. Highest: {}. Interval: {}'.format(e,accuracy,max_ac,max_interval))
-        print("best acc in type:", max_accintype)
         # print('epoch {}: {}. Highese: {}'.format(e,accuracy,np.max(acc_list)))
         
         if np.max(acc_list)==acc_list[-1]:
@@ -266,9 +261,8 @@ def train_model(model,train_loader,val_loader,cfg):
 
 def run_one_epoch(model,bar,mode,loss_func,optimizer=None,show_interval=10):
     confusion_mat=np.zeros((cfg.k_way,cfg.k_way))
-    summary={"acc":[],"loss":[],"accintype":[]}
+    summary={"acc":[],"loss":[]}
     device=next(model.parameters()).device
-    summary['accintype'] = np.empty([0,5])
     
     
     if mode=='train':
@@ -303,14 +297,7 @@ def run_one_epoch(model,bar,mode,loss_func,optimizer=None,show_interval=10):
         else:
             batch_cfm=cal_cfm(pred,model.q_label, ncls=cfg.k_way)
             batch_acc=np.trace(batch_cfm)/np.sum(batch_cfm)
-
-            onebatchaccintype = np.zeros(5)
-            for i in range(cfg.k_way):
-                onebatchaccintype[i] = 1.000 * batch_cfm[i, i] / np.sum(batch_cfm[i,:])
-                #print(batch_cfm[i, i] / np.sum(batch_cfm[i,:]))
-
-            onebatchaccintype = np.array([onebatchaccintype])
-            summary['accintype'] = np.append(summary['accintype'],onebatchaccintype, axis = 0)
+            
             summary['acc'].append(batch_acc)
             if i%show_interval==0:
                 bar.set_description("mea_ac: %.3f"%(np.mean(summary['acc'])))
